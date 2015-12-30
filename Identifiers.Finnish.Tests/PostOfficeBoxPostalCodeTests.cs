@@ -6,12 +6,12 @@ namespace Affecto.Identifiers.Finnish.Tests
     [TestClass]
     public class PostOfficeBoxPostalCodeTests
     {
-        private const string ValidPostalCode = "20611";
+        private const string ValidPostalCode = "20615";
 
         private PostOfficeBoxPostalCode sut;
         
         [TestMethod]
-        public void FiveDigitPostalCodeThatEndsWithOne()
+        public void FiveDigitPostalCodeThatDoesntEndWithZero()
         {
             sut = PostOfficeBoxPostalCode.Create(ValidPostalCode);
 
@@ -19,7 +19,7 @@ namespace Affecto.Identifiers.Finnish.Tests
         }
 
         [TestMethod]
-        public void TryFiveDigitPostalCodeThatEndsWithOne()
+        public void TryFiveDigitPostalCodeThatDoesntEndWithZero()
         {
             string reasonForFailure;
             PostalCode result;
@@ -30,7 +30,7 @@ namespace Affecto.Identifiers.Finnish.Tests
         }
 
         [TestMethod]
-        public void FiveDigitPostalCodeThatEndsWithOneSpecification()
+        public void FiveDigitPostalCodeThatDoesntEndWithZeroSpecification()
         {
             var specification = new PostOfficeBoxPostalCodeSpecification();
 
@@ -70,13 +70,13 @@ namespace Affecto.Identifiers.Finnish.Tests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void FiveDigitPostalCodeThatDoesntEndWithOne()
+        public void FiveDigitPostalCodeThatEndsWithZero()
         {
             PostOfficeBoxPostalCode.Create("20610");
         }
 
         [TestMethod]
-        public void TryFiveDigitPostalCodeThatDoesntEndWithOne()
+        public void TryFiveDigitPostalCodeThatEndsWithZero()
         {
             AssertInvalidPostalCode("20540");
         }
