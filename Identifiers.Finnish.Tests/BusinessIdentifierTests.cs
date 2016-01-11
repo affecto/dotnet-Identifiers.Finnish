@@ -106,7 +106,7 @@ namespace Affecto.Identifiers.Finnish.Tests
         [TestMethod]
         public void MinimumOrderNumberInBusinessId()
         {
-            BusinessIdentifier.Create("0000001-9");
+            BusinessIdentifier.Create("0000000-0");
         }
 
         [TestMethod]

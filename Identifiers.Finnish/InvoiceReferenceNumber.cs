@@ -9,7 +9,7 @@ namespace Affecto.Identifiers.Finnish
 
         private InvoiceReferenceNumber(string invoiceReferenceNumber)
         {
-            this.invoiceReferenceNumber = invoiceReferenceNumber;
+            this.invoiceReferenceNumber = Compress(invoiceReferenceNumber);
         }
 
         public static InvoiceReferenceNumber Create(int invoiceReferenceNumber)
@@ -24,32 +24,12 @@ namespace Affecto.Identifiers.Finnish
                 throw new ArgumentNullException("invoiceReferenceNumber");
             }
 
-            if (invoiceReferenceNumber.Length < 4)
+            var specification = new InvoiceReferenceNumberSpecification();
+            if (specification.IsSatisfiedBy(invoiceReferenceNumber))
             {
-                throw new ArgumentException(string.Format("InvoiceReferenceNumber '{0}' is too short.", invoiceReferenceNumber), invoiceReferenceNumber);
+                return new InvoiceReferenceNumber(invoiceReferenceNumber);
             }
-
-            if (invoiceReferenceNumber.Length > 20)
-            {
-                throw new ArgumentException(string.Format("InvoiceReferenceNumber '{0}' is too long.", invoiceReferenceNumber), invoiceReferenceNumber);
-            }
-
-            if (!Regex.IsMatch(invoiceReferenceNumber, @"^[\d ]+$"))
-            {
-                throw new ArgumentException(string.Format("InvoiceReferenceNumber '{0}' contains illegal characters.", invoiceReferenceNumber), invoiceReferenceNumber);
-            }
-
-            invoiceReferenceNumber = invoiceReferenceNumber.Replace(" ", "");
-            invoiceReferenceNumber = invoiceReferenceNumber.TrimStart('0');
-            int givenChecksum = int.Parse(invoiceReferenceNumber[invoiceReferenceNumber.Length - 1].ToString());
-            int calculatedChecksum = Calculate731Checksum(invoiceReferenceNumber.Substring(0, invoiceReferenceNumber.Length - 1));
-
-            if (givenChecksum != calculatedChecksum)
-            {
-                throw new ArgumentException(string.Format("InvoiceReferenceNumber '{0}' contains an invalid checksum.", invoiceReferenceNumber), invoiceReferenceNumber);
-            }
-
-            return new InvoiceReferenceNumber(invoiceReferenceNumber);                
+            throw new ArgumentException(string.Format("Invoice reference number '{0}' does not satisfy specification.", invoiceReferenceNumber), "invoiceReferenceNumber");
         }
 
         public static bool TryCreate(int invoiceReferenceNumber, out InvoiceReferenceNumber result, out string failureReason)
@@ -59,25 +39,16 @@ namespace Affecto.Identifiers.Finnish
 
         public static bool TryCreate(string invoiceReferenceNumber, out InvoiceReferenceNumber result, out string failureReason)
         {
-            try
+            var specification = new InvoiceReferenceNumberSpecification();
+            if (specification.IsSatisfiedBy(invoiceReferenceNumber))
             {
-                result = Create(invoiceReferenceNumber);
+                result = new InvoiceReferenceNumber(invoiceReferenceNumber);
                 failureReason = string.Empty;
                 return true;
             }
-            catch (ArgumentNullException)
-            {
-                failureReason = "Argument 'invoiceReferenceNumber' cannot be null.";
-            }
-            catch (ArgumentException ex)
-            {
-                failureReason = ex.Message;
-            }
-            catch (Exception ex)
-            {
-                failureReason = ex.Message;
-            }
+
             result = null;
+            failureReason = specification.GetReasonsForDissatisfactionSeparatedWithNewLine();
             return false;
         }
 
@@ -105,32 +76,9 @@ namespace Affecto.Identifiers.Finnish
             return invoiceReferenceNumber.Equals(other.invoiceReferenceNumber);
         }
 
-        private static int Calculate731Checksum(string body)
+        private static string Compress(string invoiceReferenceNumber)
         {
-            int sum = 0;
-            int[] multipliers = { 7, 3, 1 };
-            int multiplierPosition = 0;
-            for (int i = body.Length - 1; i >= 0; i--)
-            {
-                int current = int.Parse(body[i].ToString());
-                int multiplier = multipliers[multiplierPosition];
-
-                sum += current * multiplier;
-
-                multiplierPosition++;
-                if (multiplierPosition > 2)
-                {
-                    multiplierPosition = 0;
-                }
-            }
-
-            int checksum = 10 - (sum % 10);
-            if (checksum == 10)
-            {
-                checksum = 0;
-            }
-
-            return checksum;
+            return invoiceReferenceNumber.Replace(" ", "").TrimStart('0');
         }
     }
 }

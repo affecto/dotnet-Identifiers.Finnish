@@ -6,25 +6,23 @@ namespace Affecto.Identifiers.Finnish.Tests
     [TestClass]
     public class InvoiceReferenceNumberTests
     {
-        // TODO: Test TryCreate
-
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void NulViitenumero()
+        public void NullReferenceNumber()
         {
             InvoiceReferenceNumber.Create(null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void NonNumericViitenumero()
+        public void NonNumericReferenceNumber()
         {
             InvoiceReferenceNumber.Create("abcdefg");
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void EmptyViitenumero()
+        public void EmptyReferenceNumber()
         {
             InvoiceReferenceNumber.Create(string.Empty);
         }
@@ -32,14 +30,14 @@ namespace Affecto.Identifiers.Finnish.Tests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void TooShortViitenumero()
+        public void TooShortReferenceNumber()
         {
             InvoiceReferenceNumber.Create("12");
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void TooLongViitenumero()
+        public void TooLongReferenceNumber()
         {
             InvoiceReferenceNumber.Create("123456789012345678901");
         }
@@ -52,33 +50,77 @@ namespace Affecto.Identifiers.Finnish.Tests
         }
 
         [TestMethod]
-        public void ValidChecksum()
+        public void TryNullReferenceNumber()
         {
-            InvoiceReferenceNumber.Create("1234561");
+            AssertInvalidValue(null);
         }
 
         [TestMethod]
-        public void ValidChecksumWithSpaces()
+        public void TryNonNumericReferenceNumber()
         {
-            InvoiceReferenceNumber.Create("12345 61");
+            AssertInvalidValue("abcdefg");
+        }
+
+        [TestMethod]
+        public void TryEmptyReferenceNumber()
+        {
+            AssertInvalidValue(string.Empty);
+        }
+
+        [TestMethod]
+        public void TryTooShortReferenceNumber()
+        {
+            AssertInvalidValue("12");
+            AssertInvalidValue(12);
+        }
+
+        [TestMethod]
+        public void TryTooLongReferenceNumber()
+        {
+            AssertInvalidValue("123456789012345678901");
+        }
+
+        [TestMethod]
+        public void TryInvalidChecksum()
+        {
+            AssertInvalidValue("1234567");
+            AssertInvalidValue(1234567);
+        }
+
+        [TestMethod]
+        public void ValidReferenceNumber()
+        {
+            AssertValidValue("1234561");
+        }
+
+        [TestMethod]
+        public void IntegerReferenceNumber()
+        {
+            AssertValidValue(1234561);
+        }
+
+        [TestMethod]
+        public void ValidReferenceNumberWithSpaces()
+        {
+            AssertValidValue("12345 61");
         }
 
         [TestMethod]
         public void ZeroPadded()
         {
-            InvoiceReferenceNumber.Create("0000000001234561");
+            AssertValidValue("0000000001234561");
         }
 
         [TestMethod]
         public void MaximumWidth()
         {
-            InvoiceReferenceNumber.Create("12345678901234567894");
+            AssertValidValue("12345678901234567894");
         }
 
         [TestMethod]
         public void MinWidth()
         {
-            InvoiceReferenceNumber.Create("1232");
+            AssertValidValue("1232");
         }       
 
         [TestMethod]
@@ -111,12 +153,45 @@ namespace Affecto.Identifiers.Finnish.Tests
         }
 
         [TestMethod]
-        public void BusinessIdIsNotEqualWithDifferentTypesOfObjects()
+        public void InvoiceReferenceNumberIsNotEqualWithDifferentTypesOfObjects()
         {
             InvoiceReferenceNumber sut = InvoiceReferenceNumber.Create("1234561");
             Assert.AreNotEqual(DateTime.Today, sut);
         }
         
+        private static void AssertInvalidValue(string value)
+        {
+            AssertFailedTryCreate(value);
+            AssertDissatisfiedSpecification(value);
+        }
+
+        private static void AssertInvalidValue(int value)
+        {
+            AssertFailedTryCreate(value);
+            AssertDissatisfiedSpecification(value);
+        }
+
+        private static void AssertValidValue(string value)
+        {
+            InvoiceReferenceNumber.Create(value);
+            var specification = new InvoiceReferenceNumberSpecification();
+            Assert.IsTrue(specification.IsSatisfiedBy(value));
+        }
+
+        private void AssertValidValue(int value)
+        {
+            InvoiceReferenceNumber.Create(value);
+            var specification = new InvoiceReferenceNumberSpecification();
+            Assert.IsTrue(specification.IsSatisfiedBy(value));
+        }
+
+        private static void AssertDissatisfiedSpecification(string value)
+        {
+            var specification = new InvoiceReferenceNumberSpecification();
+            Assert.IsFalse(specification.IsSatisfiedBy(value));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(specification.GetReasonsForDissatisfactionSeparatedWithNewLine()));
+        }
+
         private static void AssertFailedTryCreate(string value)
         {
             string failureReason;
@@ -124,6 +199,13 @@ namespace Affecto.Identifiers.Finnish.Tests
             Assert.IsFalse(InvoiceReferenceNumber.TryCreate(value, out result, out failureReason));
             Assert.IsNull(result);
             Assert.IsFalse(string.IsNullOrWhiteSpace(failureReason));
+        }
+
+        private static void AssertDissatisfiedSpecification(int value)
+        {
+            var specification = new InvoiceReferenceNumberSpecification();
+            Assert.IsFalse(specification.IsSatisfiedBy(value));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(specification.GetReasonsForDissatisfactionSeparatedWithNewLine()));
         }
 
         private static void AssertFailedTryCreate(int value)
@@ -134,6 +216,5 @@ namespace Affecto.Identifiers.Finnish.Tests
             Assert.IsNull(result);
             Assert.IsFalse(string.IsNullOrWhiteSpace(failureReason));
         }
-         
     }
 }
