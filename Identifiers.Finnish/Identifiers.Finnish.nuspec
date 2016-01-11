@@ -7,6 +7,6 @@
     <description>$description$</description>
     <projectUrl>https://github.com/affecto/dotnet-Identifiers.Finnish</projectUrl>
     <tags>affecto identifier identifiers finnish finland suomi tunnus validate validation validointi business identifier y-tunnus invoice reference lasku viite municipality code kuntanumero phone number puhelinnumero postal code postinumero post box postilokero specification pattern regex regular expression</tags>
-    <releaseNotes>Post office box postal code last number can be anything from one to nine.</releaseNotes>
+    <releaseNotes>Added class for invoice reference number specification.</releaseNotes>
   </metadata>
 </package>
