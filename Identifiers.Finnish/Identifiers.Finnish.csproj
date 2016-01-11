@@ -47,6 +47,7 @@
     <Compile Include="BusinessIdentifierSpecification.cs" />
     <Compile Include="InvalidBusinessIdentifierReason.cs" />
     <Compile Include="InvoiceReferenceNumber.cs" />
+    <Compile Include="InvoiceReferenceNumberSpecification.cs" />
     <Compile Include="MunicipalityCode.cs" />
     <Compile Include="MunicipalityCodeSpecification.cs" />
     <Compile Include="PhoneNumber.cs" />
