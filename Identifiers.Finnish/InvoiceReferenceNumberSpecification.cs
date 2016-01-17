@@ -13,6 +13,8 @@ namespace Affecto.Identifiers.Finnish
                 AddReasonForDissatisfaction("Reference number is null.");
                 return false;
             }
+            entity = entity.Trim();
+
             if (entity.Length < 4)
             {
                 AddReasonForDissatisfaction(string.Format("Reference number '{0}' is too short.", entity));
