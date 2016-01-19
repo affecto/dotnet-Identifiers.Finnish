@@ -106,6 +106,19 @@ namespace Affecto.Identifiers.Finnish.Tests
         }
 
         [TestMethod]
+        public void ValidReferenceNumberBeginningWithSpaces()
+        {
+            AssertValidValue(" 1234561");
+        }
+
+        [TestMethod]
+        public void ValidReferenceNumberEndingWithSpaces()
+        {
+            AssertValidValue("1234561 ");
+        }
+
+
+        [TestMethod]
         public void ZeroPadded()
         {
             AssertValidValue("0000000001234561");
